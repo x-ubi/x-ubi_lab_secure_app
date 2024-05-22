@@ -9,10 +9,11 @@ steps:
     id: vars
     shell: bash
     run: |
-echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-echo "::set-output name=sha_short::$(git rev-parse HEAD)" - name: Prepare Mixeway docker image
-run: |
-docker pull mixeway/scanner:latest
-- name: Run Scan
-  run: |
-    mvn package
+      echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+      echo "::set-output name=sha_short::$(git rev-parse HEAD)"
+  - name: Prepare Mixeway docker image
+    run: |
+      docker pull mixeway/scanner:latest
+  - name: Run Scan
+    run: |
+      mvn package
