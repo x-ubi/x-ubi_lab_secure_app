@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   mixeway-scan:
@@ -11,23 +14,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+
       - name: Prepare variables
         id: vars
         shell: bash
         run: |
           echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
           echo "::set-output name=sha_short::$(git rev-parse HEAD)"
+
       - name: Prepare Mixeway docker image
         run: |
           docker pull mixeway/scanner:latest
+
       - name: Run Scan
         run: |
           docker run --rm \
-          -e CI=true \
-          -v $(pwd):/app \
-          -v /var/run/docker.sock:/var/run/docker.sock \
-          mixeway/scanner:latest \
-          --api-key 67adc7c4-fe03-409e-bd08-760ad4d17146 \
-          --project-id 160 \
-          --commit-id ${{ steps.vars.outputs.sha_short }} \
-          --branch ${{ steps.vars.outputs.branch }}
+          -e OSS_USERNAME=jan.budzinski.stud@pw.edu.pl \
+          -e OSS_KEY=f3c6ab3d0b933b34505d9356d58a676637e3be00 \
+          -e MIXEWAY_URL=https://hub.mixeway.io \
+          -e MIXEWAY_KEY=67adc7c4-fe03-409e-bd08-760ad4d17146 \
+          -e MIXEWAY_PROJECT_ID=160 \
+          -e MODE=STANDALONE \
+          -e MIXEWAY_PROJECT_NAME=x-ubi_lab_secure_app \
+          -e COMMIT_ID=${{ steps.vars.outputs.sha_short }} \
+          -e BRANCH=${{ steps.vars.outputs.branch }} \
+          -v $(pwd):/opt/sources \
+          mixeway/scanner:latest
