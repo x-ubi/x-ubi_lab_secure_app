@@ -1,6 +1,6 @@
 name: Perform Mixeway Scan
 
-on:
+on: 
   push:
     branches:
       - master
@@ -22,4 +22,12 @@ jobs:
           docker pull mixeway/scanner:latest
       - name: Run Scan
         run: |
-          mvn package
+          docker run --rm \
+          -e CI=true \
+          -v $(pwd):/app \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          mixeway/scanner:latest \
+          --api-key YOUR_API_KEY \
+          --project-id YOUR_PROJECT_ID \
+          --commit-id ${{ steps.vars.outputs.sha_short }} \
+          --branch ${{ steps.vars.outputs.branch }}
